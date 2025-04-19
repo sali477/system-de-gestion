@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Ajouter une question</title>
+  <link rel="stylesheet" href="Ajouter-question.css">
+</head>
+<body>
+  <h1>Ajouter une question à un examen</h1>
+  <form id="form-question">
+    <input type="email" id="proprietaire" placeholder="Email du propriétaire" required><br>
+    <input type="text" id="nom-examen" placeholder="Nom de l'examen" required><br>
+    <textarea id="enonce" placeholder="Énoncé de la question" required></textarea><br>
+    <input type="number" id="duree" placeholder="Durée (secondes)" required><br>
+    <input type="number" id="points" placeholder="Points" required><br>
+    
+    <div id="propositions"></div>
+    
+    <button type="button" id="add-proposition">Ajouter une proposition</button><br><br>
+    <button type="submit">Ajouter la question</button>
+  </form>
+
+   <script>// Ajouter dynamiquement une proposition
+    document.getElementById('add-proposition').addEventListener('click', () => {
+      const container = document.createElement('div');
+      container.className = 'proposition-item';
+    
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = 'Proposition';
+    
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.title = 'Correcte';
+    
+      container.appendChild(checkbox);
+      container.appendChild(input);
+    
+      document.getElementById('propositions').appendChild(container);
+    });
+    
+    // Soumission du formulaire
+    document.getElementById('form-question').addEventListener('submit', function (e) {
+      e.preventDefault();
+    
+      const email = document.getElementById('proprietaire').value.trim().toLowerCase();
+      const nomExamen = document.getElementById('nom-examen').value.trim();
+      const enonce = document.getElementById('enonce').value.trim();
+      const duree = parseInt(document.getElementById('duree').value);
+      const points = parseInt(document.getElementById('points').value);
+    
+      const propositions = [];
+      let hasCorrectAnswer = false;
+    
+      document.querySelectorAll('#propositions .proposition-item').forEach(div => {
+        const texte = div.querySelector('input[type="text"]').value.trim();
+        const correcte = div.querySelector('input[type="checkbox"]').checked;
+    
+        if (texte) {
+          propositions.push({ texte, correcte });
+          if (correcte) hasCorrectAnswer = true;
+        }
+      });
+    
+      if (propositions.length === 0) {
+        alert('Ajoutez au moins une proposition.');
+        return;
+      }
+    
+      if (!hasCorrectAnswer) {
+        alert('Au moins une proposition correcte est requise.');
+        return;
+      }
+    
+      const examsKey = 'examens_' + encodeURIComponent(email);
+      const exams = JSON.parse(localStorage.getItem(examsKey)) || [];
+      const exam = exams.find(e => e.nom === nomExamen);
+    
+      if (!exam) {
+        alert('Examen non trouvé !');
+        return;
+      }
+    
+      const question = { enonce, duree, points, propositions };
+      exam.questions.push(question);
+    
+      localStorage.setItem(examsKey, JSON.stringify(exams));
+    
+      alert('Question ajoutée avec succès !');
+      this.reset();
+      document.getElementById('propositions').innerHTML = '';
+    });</script><style>body {
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  padding: 40px;
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+}
+
+form {
+  max-width: 500px;
+  margin: auto;
+  padding: 25px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+input, textarea, button {
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
+  font-size: 1em;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+#propositions div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #218838;
+}
+
+#add-proposition {
+  background-color: #007BFF;
+}
+
+#add-proposition:hover {
+  background-color: #0056b3;
+}</style>
+</body>
+</html>

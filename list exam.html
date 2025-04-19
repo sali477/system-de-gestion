@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Liste des examens</title>
+  <link rel="stylesheet" href="Liste des examens.css">
+</head>
+<body>
+  <h1>Examens enregistrés</h1>
+  <input type="email" id="proprietaire" placeholder="Email du propriétaire" required>
+  <button id="afficher">Afficher</button>
+  <div id="resultat"></div>
+
+  <script>
+    document.getElementById('afficher').addEventListener('click', () => {
+      const email = document.getElementById('proprietaire').value.trim().toLowerCase();
+      const container = document.getElementById('resultat');
+      container.innerHTML = '';
+
+      if (!email) {
+        alert("Veuillez entrer un email.");
+        return;
+      }
+      
+
+      const examsKey = 'examens_' + encodeURIComponent(email);
+      const exams = JSON.parse(localStorage.getItem(examsKey)) || [];
+
+      if (exams.length === 0) {
+        container.innerHTML = "<p>Aucun examen trouvé pour ce propriétaire.</p>";
+        return;
+      }
+
+      exams.forEach(exam => {
+        const div = document.createElement('div');
+        div.className = "examen";
+
+        let html = `<h2>${exam.nom} (${exam.duree} min)</h2>`;
+        html += `<p><em>${exam.description || "Pas de description"}</em></p>`;
+
+        if (exam.questions.length === 0) {
+          html += `<p>Aucune question ajoutée.</p>`;
+        } else {
+          html += `<h3>Questions :</h3><ul>`;
+          exam.questions.forEach(q => {
+            html += `<li class="question"><strong>${q.enonce}</strong> (${q.duree}s, ${q.points} pts)<ul>`;
+            q.propositions.forEach(p => {
+              html += `<li class="proposition ${p.correcte ? 'correcte' : ''}">${p.texte}</li>`;
+            });
+            html += `</ul></li>`;
+          });
+          html += `</ul>`;
+        }
+
+        div.innerHTML = html;
+        container.appendChild(div);
+      });
+    });
+  </script>
+</body>
+</html>
+
+  <style>body {
+    background-color: #fffff0;
+    font-family: Comic Sans MS, cursive, sans-serif;
+    padding: 20px;
+  }
+
+  h1 {
+    color: rgb(2, 2, 2);
+    text-align: center;
+  }
+
+  input, button {
+    font-size: 18px;
+    padding: 8px;
+    margin: 5px;
+  }
+
+  button {
+    background-color: #007BFF;
+    border: 2px solid black;
+    cursor: pointer;
+  }
+
+  h2 {
+    color: rgb(11, 15, 11);
+  }
+
+  ul {
+    margin-left: 20px;
+  }
+
+  #resultat {
+    margin-top: 20px;
+  }</style>
+</body>
+</html>

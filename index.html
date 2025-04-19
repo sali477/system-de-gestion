@@ -1,22 +1,112 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>Ajouter un Examen</title>
+  <meta charset="UTF-8">
+  <title>Ajouter un Examen</title>
+  <link rel="stylesheet" href="Ajouter un Examen.css">
 </head>
 <body>
-<h1>Créer un nouvel examen</h1>
-<form id="form-examen">
-<input type="text" id="nom" placeholder="Nom de l'examen" required><br>
-<input type="number" id="duree" placeholder="Durée (minutes)"
-required><br>
-<textarea id="description" placeholder="Description"></textarea><br>
-<input type="text" id="proprietaire" placeholder="Nom du propriétaire"
-required><br>
-<button type="submit">Ajouter l'examen</button>
-</form>
-<script src="script.js"></script>
-  </body>
-</html>
- 
+  <h1>Créer un nouvel examen</h1>
+  <form id="form-examen">
+    <input type="text" id="nom" placeholder="Nom de l'examen" required><br>
+    <input type="number" id="duree" placeholder="Durée (minutes)" required><br>
+    <textarea id="description" placeholder="Description (optionnelle)"></textarea><br>
+    <input type="email" id="proprietaire" placeholder="Email du propriétaire" required><br>
+    <button type="submit">Ajouter l'examen</button>
+  </form><script> document.getElementById('form-question').addEventListener('submit', function (e) {
+    e.preventDefault();
+  
+    const email = document.getElementById('proprietaire').value.trim().toLowerCase();
+    const nomExamen = document.getElementById('nom-examen').value.trim();
+    const enonce = document.getElementById('enonce').value.trim();
+    const duree = parseInt(document.getElementById('duree').value);
+    const points = parseInt(document.getElementById('points').value);
+  
+    const propositions = [];
+    let hasCorrectAnswer = false;
+  
+    document.querySelectorAll('#propositions .proposition-item').forEach(div => {
+      const texte = div.querySelector('input[type="text"]').value.trim();
+      const correcte = div.querySelector('input[type="checkbox"]').checked;
+  
+      if (texte) {
+        propositions.push({ texte, correcte });
+        if (correcte) hasCorrectAnswer = true;
+      }
+    });
+  
+    if (propositions.length === 0) {
+      alert('Ajoutez au moins une proposition.');
+      return;
+    }
+  
+    if (!hasCorrectAnswer) {
+      alert('Au moins une proposition correcte est requise.');
+      return;
+    }
+  
+    const examsKey = 'examens_' + encodeURIComponent(email);
+    const exams = JSON.parse(localStorage.getItem(examsKey)) || [];
+  
+    // Vérifier si l'examen existe déjà par son nom
+    const exam = exams.find(e => e.nom === nomExamen);
+  
+    if (!exam) {
+      alert('L\'examen n\'existe pas. Assurez-vous que le nom de l\'examen est correct.');
+      return;
+    }
+  
+    const question = { enonce, duree, points, propositions };
+    exam.questions.push(question);
+  
+    // Sauvegarder les changements dans localStorage
+    localStorage.setItem(examsKey, JSON.stringify(exams));
+  
+    alert('Question ajoutée avec succès !');
+    this.reset();
+    document.getElementById('propositions').innerHTML = '';
+  });
+  </script><style>body {
+    font-family: Arial, sans-serif;
+    background: #f9f9f9;
+    padding: 40px;
+  }
 
+  h1 {
+    text-align: center;
+    color: #333;
+  }
+
+  form {
+    max-width: 400px;
+    margin: auto;
+    padding: 25px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+
+  input, textarea, button {
+    width: 100%;
+    margin: 10px 0;
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+  }
+
+  button {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  button:hover {
+    background-color: #0056b3;
+  }</style>
+</body>
+</html>
+  
